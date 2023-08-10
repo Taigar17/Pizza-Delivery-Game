@@ -20,66 +20,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "common.h"
 
-static void capFrameRate(long *then, float *remainder);
-
-int main(int argc, char *argv[])
+char *readFile(const char *filename)
 {
-	long then;
-	float remainder;
+	char *buffer = 0;
+	unsigned long length;
+	FILE *file = fopen(filename, "rb");
 
-	memset(&app, 0, sizeof(App));
-	app.textureTail = &app.textureHead;
-
-	initSDL();
-
-	atexit(cleanup);
-
-	initGame();
-
-	initStage();
-
-	then = SDL_GetTicks();
-
-	remainder = 0;
-
-	while (1)
+	if (file)
 	{
-		prepareScene();
+		fseek(file, 0, SEEK_END);
+		length = ftell(file);
+		fseek(file, 0, SEEK_SET);
 
-		doInput();
+		buffer = malloc(length + 1);
+		memset(buffer, 0, length + 1);
+		fread(buffer, 1, length, file);
 
-		app.delegate.logic();
+		fclose(file);
 
-		app.delegate.draw();
-
-		presentScene();
-
-		capFrameRate(&then, &remainder);
+		buffer[length] = '\0';
 	}
 
-	return 0;
-}
-
-static void capFrameRate(long *then, float *remainder)
-{
-	long wait, frameTime;
-
-	wait = 16 + *remainder;
-
-	*remainder -= (int)*remainder;
-
-	frameTime = SDL_GetTicks() - *then;
-
-	wait -= frameTime;
-
-	if (wait < 1)
-	{
-		wait = 1;
-	}
-
-	SDL_Delay(wait);
-
-	*remainder += 0.667;
-
-	*then = SDL_GetTicks();
+	return buffer;
 }

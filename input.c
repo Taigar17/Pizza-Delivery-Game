@@ -20,66 +20,44 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "common.h"
 
-static void capFrameRate(long *then, float *remainder);
-
-int main(int argc, char *argv[])
+void doKeyUp(SDL_KeyboardEvent *event)
 {
-	long then;
-	float remainder;
-
-	memset(&app, 0, sizeof(App));
-	app.textureTail = &app.textureHead;
-
-	initSDL();
-
-	atexit(cleanup);
-
-	initGame();
-
-	initStage();
-
-	then = SDL_GetTicks();
-
-	remainder = 0;
-
-	while (1)
+	if (event->repeat == 0 && event->keysym.scancode < MAX_KEYBOARD_KEYS)
 	{
-		prepareScene();
-
-		doInput();
-
-		app.delegate.logic();
-
-		app.delegate.draw();
-
-		presentScene();
-
-		capFrameRate(&then, &remainder);
+		app.keyboard[event->keysym.scancode] = 0;
 	}
-
-	return 0;
 }
 
-static void capFrameRate(long *then, float *remainder)
+void doKeyDown(SDL_KeyboardEvent *event)
 {
-	long wait, frameTime;
-
-	wait = 16 + *remainder;
-
-	*remainder -= (int)*remainder;
-
-	frameTime = SDL_GetTicks() - *then;
-
-	wait -= frameTime;
-
-	if (wait < 1)
+	if (event->repeat == 0 && event->keysym.scancode < MAX_KEYBOARD_KEYS)
 	{
-		wait = 1;
+		app.keyboard[event->keysym.scancode] = 1;
 	}
+}
 
-	SDL_Delay(wait);
+void doInput(void)
+{
+	SDL_Event event;
 
-	*remainder += 0.667;
+	while (SDL_PollEvent(&event))
+	{
+		switch (event.type)
+		{
+			case SDL_QUIT:
+				exit(0);
+				break;
 
-	*then = SDL_GetTicks();
+			case SDL_KEYDOWN:
+				doKeyDown(&event.key);
+				break;
+
+			case SDL_KEYUP:
+				doKeyUp(&event.key);
+				break;
+
+			default:
+				break;
+		}
+	}
 }

@@ -20,66 +20,42 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "common.h"
 
-static void capFrameRate(long *then, float *remainder);
-
-int main(int argc, char *argv[])
+void prepareScene(void)
 {
-	long then;
-	float remainder;
-
-	memset(&app, 0, sizeof(App));
-	app.textureTail = &app.textureHead;
-
-	initSDL();
-
-	atexit(cleanup);
-
-	initGame();
-
-	initStage();
-
-	then = SDL_GetTicks();
-
-	remainder = 0;
-
-	while (1)
-	{
-		prepareScene();
-
-		doInput();
-
-		app.delegate.logic();
-
-		app.delegate.draw();
-
-		presentScene();
-
-		capFrameRate(&then, &remainder);
-	}
-
-	return 0;
+	SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
+	SDL_RenderClear(app.renderer);
 }
 
-static void capFrameRate(long *then, float *remainder)
+void presentScene(void)
 {
-	long wait, frameTime;
+	SDL_RenderPresent(app.renderer);
+}
 
-	wait = 16 + *remainder;
+void blit(SDL_Texture *texture, int x, int y, int center)
+{
+	SDL_Rect dest;
 
-	*remainder -= (int)*remainder;
+	dest.x = x;
+	dest.y = y;
+	SDL_QueryTexture(texture, NULL, NULL, &dest.w, &dest.h);
 
-	frameTime = SDL_GetTicks() - *then;
-
-	wait -= frameTime;
-
-	if (wait < 1)
+	if (center)
 	{
-		wait = 1;
+		dest.x -= dest.w / 2;
+		dest.y -= dest.h / 2;
 	}
 
-	SDL_Delay(wait);
+	SDL_RenderCopy(app.renderer, texture, NULL, &dest);
+}
 
-	*remainder += 0.667;
+void blitRect(SDL_Texture *texture, SDL_Rect *src, int x, int y)
+{
+	SDL_Rect dest;
 
-	*then = SDL_GetTicks();
+	dest.x = x;
+	dest.y = y;
+	dest.w = src->w;
+	dest.h = src->h;
+
+	SDL_RenderCopy(app.renderer, texture, src, &dest);
 }

@@ -20,66 +20,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "common.h"
 
-static void capFrameRate(long *then, float *remainder);
-
-int main(int argc, char *argv[])
+int collision(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2)
 {
-	long then;
-	float remainder;
-
-	memset(&app, 0, sizeof(App));
-	app.textureTail = &app.textureHead;
-
-	initSDL();
-
-	atexit(cleanup);
-
-	initGame();
-
-	initStage();
-
-	then = SDL_GetTicks();
-
-	remainder = 0;
-
-	while (1)
-	{
-		prepareScene();
-
-		doInput();
-
-		app.delegate.logic();
-
-		app.delegate.draw();
-
-		presentScene();
-
-		capFrameRate(&then, &remainder);
-	}
-
-	return 0;
+	return (MAX(x1, x2) < MIN(x1 + w1, x2 + w2)) && (MAX(y1, y2) < MIN(y1 + h1, y2 + h2));
 }
 
-static void capFrameRate(long *then, float *remainder)
+void calcSlope(int x1, int y1, int x2, int y2, float *dx, float *dy)
 {
-	long wait, frameTime;
+	int steps = MAX(abs(x1 - x2), abs(y1 - y2));
 
-	wait = 16 + *remainder;
-
-	*remainder -= (int)*remainder;
-
-	frameTime = SDL_GetTicks() - *then;
-
-	wait -= frameTime;
-
-	if (wait < 1)
+	if (steps == 0)
 	{
-		wait = 1;
+		*dx = *dy = 0;
+		return;
 	}
 
-	SDL_Delay(wait);
+	*dx = (x1 - x2);
+	*dx /= steps;
 
-	*remainder += 0.667;
-
-	*then = SDL_GetTicks();
+	*dy = (y1 - y2);
+	*dy /= steps;
 }

@@ -20,66 +20,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "common.h"
 
-static void capFrameRate(long *then, float *remainder);
-
-int main(int argc, char *argv[])
+void initBlock(char *line)
 {
-	long then;
-	float remainder;
+	Entity *e;
 
-	memset(&app, 0, sizeof(App));
-	app.textureTail = &app.textureHead;
+	e = malloc(sizeof(Entity));
+	memset(e, 0, sizeof(Entity));
+	stage.entityTail->next = e;
+	stage.entityTail = e;
 
-	initSDL();
+	sscanf(line, "%*s %f %f", &e->x, &e->y);
 
-	atexit(cleanup);
+	e->health = 1;
 
-	initGame();
-
-	initStage();
-
-	then = SDL_GetTicks();
-
-	remainder = 0;
-
-	while (1)
-	{
-		prepareScene();
-
-		doInput();
-
-		app.delegate.logic();
-
-		app.delegate.draw();
-
-		presentScene();
-
-		capFrameRate(&then, &remainder);
-	}
-
-	return 0;
-}
-
-static void capFrameRate(long *then, float *remainder)
-{
-	long wait, frameTime;
-
-	wait = 16 + *remainder;
-
-	*remainder -= (int)*remainder;
-
-	frameTime = SDL_GetTicks() - *then;
-
-	wait -= frameTime;
-
-	if (wait < 1)
-	{
-		wait = 1;
-	}
-
-	SDL_Delay(wait);
-
-	*remainder += 0.667;
-
-	*then = SDL_GetTicks();
+	e->texture = loadTexture("gfx/block.png");
+	SDL_QueryTexture(e->texture, NULL, NULL, &e->w, &e->h);
+	e->flags = EF_SOLID+EF_WEIGHTLESS;
 }
