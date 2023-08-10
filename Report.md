@@ -1,8 +1,4 @@
-### Student Number: 29010497
-### Student Name: Aaliah Hussain
-
 # SDL2 Project
-
 ## Introduction:
 
 ### As stated clearly in the brief the main purpose of this project will be to analyse, design and implement an extension to this SLD2 platform game. With that being said, the main storyline of this game will be centred around our main character the pizza delivery guy. While our main character was on the way to deliver his order he is stopped by bullies and drops his pizza slices, which are scattered across the level. In order to complete his job the main character must recollect all pizza slices and other items apart of the order. However, this task will not be easy as there will be enemies, like bullies, animals or supernatural creatures like ghosts, preventing the main character from completing his orders. (I included supernatural creatures as  the main character does night shifts, so this will the opportunity for more supernatural enemies to attack the main character.)
